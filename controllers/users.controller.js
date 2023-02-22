@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const Order = require('../models/order.model');
 const Cart = require('../models/cart.model');
 const ProductInCart = require('../models/prodictInCart.model');
+const { ref, getDownloadURL } = require('firebase/storage');
+const { storage } = require('../utils/firebase');
 
 exports.findUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll({
@@ -12,6 +14,17 @@ exports.findUsers = catchAsync(async (req, res, next) => {
       status: true,
     },
   });
+
+  const usersPromises = users.map(async user => {
+    const imgRef = ref(storage, user.profileImageUrl);
+    const url = await getDownloadURL(imgRef);
+
+    user.profileImageUrl = url;
+
+    return user;
+  });
+
+  const userResolved = await Promise.all(usersPromises);
 
   res.status(200).json({
     status: 'success',
@@ -22,6 +35,10 @@ exports.findUsers = catchAsync(async (req, res, next) => {
 
 exports.findUser = catchAsync(async (req, res, next) => {
   const { user } = req;
+  const imgRef = ref(storage, user.profileImageUrl);
+  const url = await getDownloadURL(imgRef);
+
+  user.profileImageUrl = url;
 
   res.status(200).json({
     status: 'success',

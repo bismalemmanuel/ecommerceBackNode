@@ -15,7 +15,7 @@ const router = Router();
 router.post(
   '/signup',
   [
-    upload.single('profileImageUrl') ,
+    upload.single('profileImageUrl'),
     check('username', 'The username must be mandatory').not().isEmpty(),
     check('email', 'The email must be mandatory').not().isEmpty(),
     check('email', 'The email must be a correct format').isEmail(),
